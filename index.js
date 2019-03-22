@@ -1,11 +1,11 @@
 const { Transform } = require('stream');
-const relative = require('path').relative;
+// const relative = require('path').relative;
 const linthtml = require('@linthtml/linthtml');
 const PluginError = require('plugin-error');
 const fancy = require('fancy-log');
 const chalk = require('chalk');
 
-const PLUGIN_NAME = "gulp-linthtml";
+const PLUGIN_NAME = 'gulp-linthtml';
 
 /**
  * @typedef {Object} Issue 
@@ -33,14 +33,14 @@ function lintHTMLreporter(report) {
   report.issues.forEach(function (issue) {
     const line = issue.line.toString();
     const column = issue.column.toString();
-    const space = "  ";
+    const space = '  ';
     const msg = linthtml.messages.renderIssue(issue);
-    output += chalk `\n  {gray ${line.padStart(maxLine, " ")}:${column.padEnd(maxColumn, " ")}}${space}{red error}${space}{white ${msg}}${space}{gray ${issue.rule}}`;
+    output += chalk `\n  {gray ${line.padStart(maxLine, ' ')}:${column.padEnd(maxColumn, ' ')}}${space}{red error}${space}{white ${msg}}${space}{gray ${issue.rule}}`;
   });
   output += '\n';
 
   return output;
-};
+}
 
 /**
  * Convenience method for creating a transform stream in object mode
@@ -62,7 +62,7 @@ function transform (transform, flush) {
     objectMode: true,
     transform
   });
-};
+}
 
 /**
  * @typedef {Object} GulpLintHTMLOptions
@@ -96,7 +96,7 @@ function gulpLintHTML(options) {
   options = convertOptions(options);
 
   return transform((file, enc, cb) => {
-    const filePath = relative(process.cwd(), file.path);
+    // const filePath = relative(process.cwd(), file.path);
 
     if (file.isNull()) {
       return cb(null, file);
@@ -135,14 +135,13 @@ async function getLintReport(file, cb) {
  * @param {(String|Function)} [formatter=stylish] - The name or function for a LintHTML result formatter
  * @returns {stream} gulp file stream
  */
-gulpLintHTML.format = (formatter) => {
+gulpLintHTML.format = (/*formatter*/) => {
 
   const results = [];
   results.errorCount = 0;
   // results.warningCount = 0;
   return transform((file, enc, done) => {
     if (file.linthml) {
-      file.path
       results.push({
         fileName: file.path,
         issues: file.linthml
@@ -164,7 +163,7 @@ gulpLintHTML.format = (formatter) => {
 
       const errorsCount = results.reduce((count, report) => count + report.issues.length, 0);
       output += '\n';
-      output += chalk`  {red.bold ✖ ${errorsCount} ${errorsCount > 1 ? "errors" : "error"}}`;
+      output += chalk`  {red.bold ✖ ${errorsCount} ${errorsCount > 1 ? 'errors' : 'error'}}`;
       output += '\n';
       fancy(output);
     }
