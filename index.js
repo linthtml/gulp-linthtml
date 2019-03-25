@@ -4,6 +4,9 @@ const linthtml = require('@linthtml/linthtml');
 const PluginError = require('plugin-error');
 const fancy = require('fancy-log');
 const chalk = require('chalk');
+const cosmiconfig = require('cosmiconfig');
+const path = require('path');
+const fs = require('fs');
 
 const PLUGIN_NAME = 'gulp-linthtml';
 
@@ -74,7 +77,7 @@ function transform (transform, flush) {
  * @param {(Strint|GulpLintHTMLOptions)} [options] - Rules to convert
  * @returns {Object} converted options 
  */
-function convertOptions(options) {
+function convertOptions(options = {}) {
   if (typeof options === 'string') {
     // basic config path overload: gulpLintHTML('path/to/config.json')
     options = {
@@ -93,11 +96,40 @@ function convertOptions(options) {
  */
 function gulpLintHTML(options) {
 
+  const explorer = cosmiconfig('linthtml', { stopDir: process.cwd(), packageProp: 'linthtmlConfig'});
+
   options = convertOptions(options);
-
   return transform((file, enc, cb) => {
-    // const filePath = relative(process.cwd(), file.path);
-
+    let config = null;
+    if (options.configFile) {
+      const configPath = path.join(process.cwd(), options.configFile);
+      let isConfigDirectory = false;
+      try {
+        isConfigDirectory = fs.lstatSync(configPath).isDirectory();
+        if (isConfigDirectory) {
+          config = cosmiconfig('linthtml', { stopDir: configPath, packageProp: 'linthtmlConfig' }).searchSync(configPath);
+        } else {
+          config = explorer.loadSync(configPath);
+        }
+        if (config === null) {
+          throw new Error();
+        }
+      } catch (error) {
+        if (isConfigDirectory) {
+          return cb(new PluginError(PLUGIN_NAME, `gulp-linthtml cannot read config file in directory "${configPath}"`));
+        } else {
+          return cb(new PluginError(PLUGIN_NAME, `gulp-linthtml cannot read config file "${configPath}"`));
+        }
+      }
+    }
+    
+    if (config === undefined || config === null) {
+      config = explorer.searchSync();
+    }
+    
+    if (config) {
+      options.rules = config.config? config.config : config;
+    }
     if (file.isNull()) {
       return cb(null, file);
     }
@@ -118,6 +150,7 @@ async function getLintReport(file, options, cb) {
   let result;
 
   try {
+    // console.log(options)
     result = await linthtml(file.contents.toString(), options.rules);
     // result = await linthtml(file.content, globalConfig); // globalConfig not defined
   } catch (e) {

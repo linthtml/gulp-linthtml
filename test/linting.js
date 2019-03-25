@@ -24,31 +24,34 @@ const content = `
 `;
 
 describe('gulp-linthtml plugin', () => {
-  // it('should support sharable config', done => {
-  //   linthtml(path.resolve(__dirname, 'fixtures', 'linthtmlrc-sharable-config.js'))
-  //     .on('error', done)
-  //     .on('data', file => {
-  //       should.exist(file);
-  //       should.exist(file.contents);
-  //       should.exist(file.linthtml);
+  it('should support sharable config', done => {
+    linthtml('./test/fixtures/config.json')
+      .on('error', done)
+      .on('data', file => {
+        expect(file).to.exist;
+        expect(file.contents).to.exist;
+        expect(file.linthtml).to.exist;
+        expect(file.linthtml)
+          .to.be.instanceOf(Array)
+          .and.have.lengthOf(1);
+        
+        // expect(file.linthtml).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
+        // expect(file.linthtml[0]).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
+        
+        const report = file.linthtml[0];
 
-  //       file.linthtml
-  //         .messages
-  //         .should.be.instanceof(Array)
-  //         .and.have.lengthOf(1);
+        expect(report).to.have.property('rule');
+        expect(report).to.have.property('line');
+        expect(report).to.have.property('column');
+        //   .and.have.property('ruleId', 'strict');
 
-  //       file.linthtml
-  //         .messages[0]
-  //         .should.have.properties('message', 'line', 'column')
-  //         .and.have.property('ruleId', 'eol-last');
-
-  //       done();
-  //     })
-  //     .end(new File({
-  //       path: 'test/fixtures/no-newline.js',
-  //       contents: Buffer.from('console.log(\'Hi\');')
-  //     }));
-  // });
+        done();
+      })
+      .end(new File({
+        path: 'test/fixtures/test.html',
+        contents: Buffer.from(content)
+      }));
+  });
 
   it('should produce expected message via buffer', done => {
 
@@ -106,6 +109,19 @@ describe('gulp-linthtml plugin', () => {
       .end(new File({
         path: 'test/fixtures/text.html',
         contents: stringToStream('')
+      }));
+  });
+
+  it('should emit an error when the config file specified does not exist', done => {
+    linthtml('./test/fixtures/config.js')
+      .on('error', err => {
+        expect(err.plugin).to.equal('gulp-linthtml');
+        expect(err.message).to.equal(`gulp-linthtml cannot read config file "${path.resolve(__dirname, 'fixtures/config.js')}"`);
+        done();
+      })
+      .end(new File({
+        path: 'test/fixtures/text.html',
+        contents: Buffer.from(content)
       }));
   });
 
