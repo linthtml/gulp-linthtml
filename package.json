@@ -8,6 +8,7 @@
     "test": "test"
   },
   "scripts": {
+    "pretest": "node_modules/.bin/eslint .",
     "test": "mocha"
   },
   "keywords": [
@@ -30,6 +31,10 @@
     "plugin-error": "1.0.1"
   },
   "devDependencies": {
-    "eslint": "5.15.3"
+    "chai": "4.2.0",
+    "eslint": "5.15.3",
+    "from2-string": "1.1.0",
+    "mocha": "6.0.2",
+    "vinyl": "2.2.0"
   }
 }

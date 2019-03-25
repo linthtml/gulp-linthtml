@@ -105,8 +105,7 @@ function gulpLintHTML(options) {
     if (file.isStream()) {
       return cb(new PluginError(PLUGIN_NAME, 'gulp-linthtml doesn\'t support vinyl files with Stream contents.'));
     }
-
-    getLintReport(file, cb);
+    getLintReport(file, options, cb);
   });
 }
 
@@ -115,17 +114,16 @@ function gulpLintHTML(options) {
  * @param {*} file 
  * @param {*} cb 
  */
-async function getLintReport(file, cb) {
+async function getLintReport(file, options, cb) {
   let result;
 
   try {
-    result = await linthtml(file.contents.toString());
+    result = await linthtml(file.contents.toString(), options.rules);
     // result = await linthtml(file.content, globalConfig); // globalConfig not defined
   } catch (e) {
     return cb(new PluginError(PLUGIN_NAME, e));
   }
-
-  file.linthml = result;
+  file.linthtml = result;
   return cb(null, file);
 }
 
@@ -141,14 +139,14 @@ gulpLintHTML.format = (/*formatter*/) => {
   results.errorCount = 0;
   // results.warningCount = 0;
   return transform((file, enc, done) => {
-    if (file.linthml) {
+    if (file.linthtml) {
       results.push({
         fileName: file.path,
-        issues: file.linthml
+        issues: file.linthtml
       });
-      // results.push(file.linthml);
+      // results.push(file.linthtml);
       // // collect total error/warning count
-      results.errorCount += file.linthml.length;
+      results.errorCount += file.linthtml.length;
       // results.warningCount += file.eslint.warningCount;
     }
     done(null, file);
