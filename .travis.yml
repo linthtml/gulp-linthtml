@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - node
+  - '6'
+before_script:
+  - npm install -g gulp-cli
+cache: npm
+notifications:
+  email: false
+# script: npm run-script pretest && npm run-script coverage
+# after_script: npx coveralls < coverage/lcov.info
