@@ -202,5 +202,25 @@ gulpLintHTML.format = (/*formatter*/) => {
   });
 };
 
+/**
+ * Fail when an LintHTML error is found in LintHTML results.
+ *
+ * @returns {stream} gulp file stream
+ */
+gulpLintHTML.failOnError = () => {
+  return transform((file, enc, done) => {
+    if (file.linthtml.length > 0) {
+      const error = file.linthtml[0];
+      return done(new PluginError(PLUGIN_NAME, {
+        name: 'LintHTMLError',
+        fileName: file.path,
+        message: linthtml.messages.renderIssue(error),
+        lineNumber: error.line
+      }));
+    }
+    return done(null, file);
+  });
+};
+
 
 module.exports = gulpLintHTML;
