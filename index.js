@@ -172,7 +172,7 @@ gulpLintHTML.format = (/*formatter*/) => {
   results.errorCount = 0;
   // results.warningCount = 0;
   return transform((file, enc, done) => {
-    if (file.linthtml) {
+    if (file.linthtml && file.linthtml.length > 0) {
       results.push({
         fileName: file.path,
         issues: file.linthtml
