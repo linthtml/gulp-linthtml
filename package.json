@@ -4,7 +4,6 @@
   "description": "A gulp plugin for processing files with LintHTML",
   "main": "index.js",
   "directories": {
-    "example": "example",
     "test": "test"
   },
   "scripts": {
