@@ -146,18 +146,13 @@ function gulpLintHTML(options) {
  * @param {*} file 
  * @param {*} cb 
  */
-async function getLintReport(file, options, cb) {
-  let result;
+function getLintReport(file, options, cb) {
+  let p = linthtml(file.contents.toString(), options.rules)
 
-  try {
-    // console.log(options)
-    result = await linthtml(file.contents.toString(), options.rules);
-    // result = await linthtml(file.content, globalConfig); // globalConfig not defined
-  } catch (e) {
-    return cb(new PluginError(PLUGIN_NAME, e));
-  }
-  file.linthtml = result;
-  return cb(null, file);
+  p.catch(e => cb(new PluginError(PLUGIN_NAME, e)));
+
+  p.then(reports => file.linthtml = reports)
+    .then(() => cb(null, file));
 }
 
 /**
