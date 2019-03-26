@@ -147,7 +147,7 @@ function gulpLintHTML(options) {
  * @param {*} cb 
  */
 function getLintReport(file, options, cb) {
-  let p = linthtml(file.contents.toString(), options.rules)
+  let p = linthtml(file.contents.toString(), options.rules);
 
   p.catch(e => cb(new PluginError(PLUGIN_NAME, e)));
 
