@@ -22,6 +22,21 @@ const content = `
     </body>
 </html>
 `;
+const invalid_content = `
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Document</title>
+    </head>
+    <body>
+      <!-- linthtml-configure id-no-dup-"false"   -->
+    </body>
+</html>
+`;
+
 
 describe('gulp-linthtml plugin', () => {
   it('should support sharable config', done => {
@@ -112,7 +127,7 @@ describe('gulp-linthtml plugin', () => {
       }));
   });
 
-  it('should emit an error when the config file specified does not exist', done => {
+  it('should emit an error when the config file specified does not exist', (done) => {
     linthtml('./test/fixtures/config.js')
       .on('error', err => {
         expect(err.plugin).to.equal('gulp-linthtml');
@@ -122,6 +137,32 @@ describe('gulp-linthtml plugin', () => {
       .end(new File({
         path: 'test/fixtures/text.html',
         contents: Buffer.from(content)
+      }));
+  });
+
+  it('should emmit an error when the config file specified is not valid', (done) => {
+    linthtml('./test/fixtures/invalid_config.json')
+      .on('error', err => {
+        expect(err.plugin).to.equal('gulp-linthtml');
+        expect(err.message).to.equal('Configuration for rule "html-req-lang" is invalid: Expected boolean got string');
+        done();
+      })
+      .end(new File({
+        path: 'test/fixtures/text.html',
+        contents: Buffer.from(content)
+      }));
+  });
+
+  it('should report linter errors', (done) => {
+    linthtml('./test/fixtures/config.json')
+      .on('error', err => {
+        expect(err.plugin).to.equal('gulp-linthtml');
+        expect(err.message).to.equal('Cannot parse inline configuration.');
+        done();
+      })
+      .end(new File({
+        path: 'test/fixtures/text.html',
+        contents: Buffer.from(invalid_content)
       }));
   });
 
