@@ -122,7 +122,7 @@ function gulpLintHTML(options) {
         }
       }
     }
-    
+
     if (config === undefined || config === null) {
       config = explorer.searchSync();
     }
@@ -130,6 +130,7 @@ function gulpLintHTML(options) {
     if (config) {
       options.rules = config.config? config.config : config;
     }
+
     if (file.isNull()) {
       return cb(null, file);
     }
@@ -147,12 +148,15 @@ function gulpLintHTML(options) {
  * @param {*} cb 
  */
 function getLintReport(file, options, cb) {
-  let p = linthtml(file.contents.toString(), options.rules);
+  try {
+    let p = linthtml(file.contents.toString(), options.rules);
+    p.catch(e => cb(new PluginError(PLUGIN_NAME, e)));
 
-  p.catch(e => cb(new PluginError(PLUGIN_NAME, e)));
-
-  p.then(reports => file.linthtml = reports)
-    .then(() => cb(null, file));
+    p.then(reports => file.linthtml = reports)
+      .then(() => cb(null, file));
+  } catch (error) {
+    return cb(new PluginError(PLUGIN_NAME, error.message));
+  }
 }
 
 /**
