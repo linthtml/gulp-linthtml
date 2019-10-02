@@ -7,7 +7,7 @@
 [Use](https://docs.npmjs.com/cli/install) [npm](https://docs.npmjs.com/getting-started/what-is-npm).
 
 ```
-npm install @linthml/gulp-linthtml
+npm install @linthtml/gulp-linthtml
 ```
 
 ## Usage
