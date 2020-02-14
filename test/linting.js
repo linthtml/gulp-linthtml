@@ -140,7 +140,7 @@ describe('gulp-linthtml plugin', () => {
       }));
   });
 
-  it('should emmit an error when the config file specified is not valid', (done) => {
+  it('should emit an error when the config file specified is not valid', (done) => {
     linthtml('./test/fixtures/invalid_config.json')
       .on('error', err => {
         expect(err.plugin).to.equal('gulp-linthtml');
