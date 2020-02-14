@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+* [BUILD] Upgrade to @linthtml/linthtml@0.3.x
+
 ## 0.2.0
 
 * [BUILD] Upgrade to @linthtml/linthtml@0.2.x
