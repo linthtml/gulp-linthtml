@@ -4,7 +4,7 @@ const linthtml = require('@linthtml/linthtml');
 const PluginError = require('plugin-error');
 const fancy = require('fancy-log');
 const chalk = require('chalk');
-const cosmiconfig = require('cosmiconfig');
+const { cosmiconfigSync } = require('cosmiconfig');
 const path = require('path');
 const fs = require('fs');
 
@@ -96,7 +96,7 @@ function convertOptions(options = {}) {
  */
 function gulpLintHTML(options) {
 
-  const explorer = cosmiconfig('linthtml', { stopDir: process.cwd(), packageProp: 'linthtmlConfig'});
+  const explorer = cosmiconfigSync('linthtml', { stopDir: process.cwd(), packageProp: 'linthtmlConfig'});
 
   options = convertOptions(options);
   return transform((file, enc, cb) => {
@@ -107,9 +107,9 @@ function gulpLintHTML(options) {
       try {
         isConfigDirectory = fs.lstatSync(configPath).isDirectory();
         if (isConfigDirectory) {
-          config = cosmiconfig('linthtml', { stopDir: configPath, packageProp: 'linthtmlConfig' }).searchSync(configPath);
+          config = cosmiconfigSync('linthtml', { stopDir: configPath, packageProp: 'linthtmlConfig' }).search(configPath);
         } else {
-          config = explorer.loadSync(configPath);
+          config = explorer.load(configPath);
         }
         if (config === null) {
           throw new Error();
@@ -124,7 +124,7 @@ function gulpLintHTML(options) {
     }
 
     if (config === undefined || config === null) {
-      config = explorer.searchSync();
+      config = explorer.search();
     }
     
     if (config) {
