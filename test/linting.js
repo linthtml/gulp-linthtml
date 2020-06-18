@@ -68,6 +68,64 @@ describe('gulp-linthtml plugin', () => {
       }));
   });
 
+  it('should support sharable config', done => {
+    linthtml('./test/fixtures/config.json')
+      .on('error', done)
+      .on('data', file => {
+        expect(file).to.exist;
+        expect(file.contents).to.exist;
+        expect(file.linthtml).to.exist;
+        expect(file.linthtml)
+          .to.be.instanceOf(Array)
+          .and.have.lengthOf(1);
+        
+        // expect(file.linthtml).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
+        // expect(file.linthtml[0]).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
+        
+        const report = file.linthtml[0];
+
+        expect(report).to.have.property('rule');
+        expect(report).to.have.property('line');
+        expect(report).to.have.property('column');
+        //   .and.have.property('ruleId', 'strict');
+
+        done();
+      })
+      .end(new File({
+        path: 'test/fixtures/test.html',
+        contents: Buffer.from(content)
+      }));
+  });
+
+  it('should support new config format', done => {
+    linthtml('./test/fixtures/new_config_format.json')
+      .on('error', done)
+      .on('data', file => {
+        expect(file).to.exist;
+        expect(file.contents).to.exist;
+        expect(file.linthtml).to.exist;
+        expect(file.linthtml)
+          .to.be.instanceOf(Array)
+          .and.have.lengthOf(1);
+        
+        // expect(file.linthtml).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
+        // expect(file.linthtml[0]).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
+        
+        const report = file.linthtml[0];
+
+        expect(report).to.have.property('rule');
+        expect(report).to.have.property('line');
+        expect(report).to.have.property('column');
+        //   .and.have.property('ruleId', 'strict');
+
+        done();
+      })
+      .end(new File({
+        path: 'test/fixtures/test.html',
+        contents: Buffer.from(content)
+      }));
+  });
+
   it('should produce expected message via buffer', done => {
 
     linthtml({rules: { 'html-req-lang': true }})
@@ -131,7 +189,7 @@ describe('gulp-linthtml plugin', () => {
     linthtml('./test/fixtures/config.js')
       .on('error', err => {
         expect(err.plugin).to.equal('gulp-linthtml');
-        expect(err.message).to.equal(`gulp-linthtml cannot read config file "${path.resolve(__dirname, 'fixtures/config.js')}"`);
+        expect(err.message).to.equal(`gulp-linthtml cannot read config file '${path.resolve(__dirname, 'fixtures/config.js')}'`);
         done();
       })
       .end(new File({
