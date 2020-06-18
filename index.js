@@ -7,6 +7,7 @@ const chalk = require('chalk');
 const { cosmiconfigSync } = require('cosmiconfig');
 const path = require('path');
 const fs = require('fs');
+const Table = require('table-layout');
 
 const PLUGIN_NAME = 'gulp-linthtml';
 
@@ -23,6 +24,19 @@ const PLUGIN_NAME = 'gulp-linthtml';
  * @property {Issue[]} issues - The issues found during fil analysis
  */
 
+function printPosition(issue, maxLine, maxColumn) {
+  const line = issue.line.toString();
+  const column = issue.column.toString();
+  return `${line.padStart(maxLine, ' ')}:${column.padEnd(maxColumn, ' ')}`;
+}
+
+function printLevel(issue) {
+  return `${{
+    warning: 'yellow warning',
+    error: 'red error'
+  }[issue.severity]}`;
+}
+
 /**
  *  Output a report
  * 
@@ -33,15 +47,22 @@ function lintHTMLreporter(report) {
   const maxLine = report.issues.reduce((max, cv) => Math.max(max, cv.line), -1).toString().length;
   const maxColumn = report.issues.reduce((max, cv) => Math.max(max, cv.column), -1).toString().length;
 
-  report.issues.forEach(function (issue) {
-    const line = issue.line.toString();
-    const column = issue.column.toString();
-    const space = '  ';
-    const msg = linthtml.messages.renderIssue(issue);
-    output += chalk `\n  {gray ${line.padStart(maxLine, ' ')}:${column.padEnd(maxColumn, ' ')}}${space}{red error}${space}{white ${msg}}${space}{gray ${issue.rule}}`;
-  });
-  output += '\n';
+  const issues = [];
 
+  report.issues.forEach(function(issue) {
+    const msg = linthtml.messages.renderIssue(issue);
+    const positionTxt = printPosition(issue, maxLine, maxColumn);
+    const level = printLevel(issue);
+    issues.push({
+      positions: chalk`{gray ${positionTxt}}`,
+      level: chalk`{${level}}`,
+      msg,
+      rule: chalk`{gray ${issue.rule}}`
+    });
+  });
+
+  const table = new Table(issues, { noTrim: true });
+  output = `${output}\n${table.toString()}`;
   return output;
 }
 
@@ -116,9 +137,9 @@ function gulpLintHTML(options) {
         }
       } catch (error) {
         if (isConfigDirectory) {
-          return cb(new PluginError(PLUGIN_NAME, `gulp-linthtml cannot read config file in directory "${configPath}"`));
+          return cb(new PluginError(PLUGIN_NAME, `gulp-linthtml cannot read config file in directory '${configPath}'`));
         } else {
-          return cb(new PluginError(PLUGIN_NAME, `gulp-linthtml cannot read config file "${configPath}"`));
+          return cb(new PluginError(PLUGIN_NAME, `gulp-linthtml cannot read config file '${configPath}'`));
         }
       }
     }
@@ -168,7 +189,8 @@ function getLintReport(file, options, cb) {
 gulpLintHTML.format = (/*formatter*/) => {
 
   const results = [];
-  results.errorCount = 0;
+  results.errorsCount = 0;
+  results.warningsCount = 0;
   // results.warningCount = 0;
   return transform((file, enc, done) => {
     if (file.linthtml && file.linthtml.length > 0) {
@@ -178,22 +200,29 @@ gulpLintHTML.format = (/*formatter*/) => {
       });
       // results.push(file.linthtml);
       // // collect total error/warning count
-      results.errorCount += file.linthtml.length;
-      // results.warningCount += file.eslint.warningCount;
+
+      const errorsCount = file.linthtml.reduce((count, issue) => issue.severity === 'error' ? count + 1 : count, 0);
+      const warningsCount = file.linthtml.reduce((count, issue) => issue.severity === 'warning' ? count + 1 : count, 0);
+      results.errorsCount += errorsCount;
+      results.warningsCount += warningsCount;
     }
     done(null, file);
 
   }, done => {
+    const { errorsCount, warningsCount } = results;
+    const problemsCount = errorsCount + warningsCount;
+    let output = '\n';
+    output = results.reduce((out, result) => {
+      return out += lintHTMLreporter(result);
+    }, output);
+    output += '\n';
+
     if (results.errorCount !== 0) {
-      let output = '\n';
-
-      output = results.reduce((out, result) => {
-        return out += lintHTMLreporter(result);
-      }, output);
-
-      const errorsCount = results.reduce((count, report) => count + report.issues.length, 0);
+      output += chalk`  {red ✖ ${problemsCount} ${problemsCount > 1 ? 'problems' : 'problem'} (${errorsCount} ${errorsCount > 1 ? 'errors' : 'error'}, ${warningsCount} ${warningsCount > 1 ? 'warnings' : 'warning'})}`;
       output += '\n';
-      output += chalk`  {red.bold ✖ ${errorsCount} ${errorsCount > 1 ? 'errors' : 'error'}}`;
+      fancy(output);
+    } else if (results.warningCount !== 0) {
+      output += chalk`  {yellow ✖ ${problemsCount} ${problemsCount > 1 ? 'problems' : 'problem'} (0 error, ${warningsCount} ${warningsCount > 1 ? 'warnings' : 'warning'})}`;
       output += '\n';
       fancy(output);
     }
@@ -208,8 +237,9 @@ gulpLintHTML.format = (/*formatter*/) => {
  */
 gulpLintHTML.failOnError = () => {
   return transform((file, enc, done) => {
-    if (file.linthtml.length > 0) {
-      const error = file.linthtml[0];
+    const errors = file.linthtml.filter(_ => _.severity === 'error');
+    if (errors.length > 0) {
+      const error = errors[0];
       return done(new PluginError(PLUGIN_NAME, {
         name: 'LintHTMLError',
         fileName: file.path,
