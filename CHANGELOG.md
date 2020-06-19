@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+
+* [FEAT] Upgrade to @linthtml/linthtml@0.4.x and add support for warning severity
+
 ## 0.3.0
 
 * [BUILD] Upgrade to @linthtml/linthtml@0.3.x

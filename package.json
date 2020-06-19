@@ -1,6 +1,6 @@
 {
   "name": "@linthtml/gulp-linthtml",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A gulp plugin for processing files with LintHTML",
   "main": "index.js",
   "directories": {
@@ -35,7 +35,7 @@
     "chai": "4.2.0",
     "eslint": "6.8.0",
     "from2-string": "1.1.0",
-    "mocha": "7.0.1",
+    "mocha": "8.0.1",
     "vinyl": "2.2.0"
   }
 }
