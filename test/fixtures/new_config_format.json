@@ -1,0 +1,5 @@
+{
+  "rules": {
+    "html-req-lang": "warning"
+  }
+}
