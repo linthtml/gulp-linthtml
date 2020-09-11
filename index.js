@@ -5,7 +5,7 @@ const PluginError = require('plugin-error');
 const fancy = require('fancy-log');
 const chalk = require('chalk');
 const Table = require('table-layout');
-const path = require('path')
+const path = require('path');
 const PLUGIN_NAME = 'gulp-linthtml';
 
 /**
@@ -136,7 +136,7 @@ function gulpLintHTML(options) {
     let linter = null;
     try {
       if (options.configFile) {
-        linter = linthtml.from_config_path(options.configFile)
+        linter = linthtml.from_config_path(options.configFile);
       } else if (options.rules) {
         linter = linthtml.fromConfig(options);
       } else {
