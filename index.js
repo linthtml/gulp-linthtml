@@ -4,11 +4,8 @@ const linthtml = require('@linthtml/linthtml');
 const PluginError = require('plugin-error');
 const fancy = require('fancy-log');
 const chalk = require('chalk');
-const { cosmiconfigSync } = require('cosmiconfig');
-const path = require('path');
-const fs = require('fs');
 const Table = require('table-layout');
-
+const path = require('path')
 const PLUGIN_NAME = 'gulp-linthtml';
 
 /**
@@ -24,9 +21,9 @@ const PLUGIN_NAME = 'gulp-linthtml';
  * @property {Issue[]} issues - The issues found during fil analysis
  */
 
-function printPosition(issue, maxLine, maxColumn) {
-  const line = issue.line.toString();
-  const column = issue.column.toString();
+function print_position({ position: { start } }, maxLine, maxColumn) {
+  const line = start.line.toString();
+  const column = start.column.toString();
   return `${line.padStart(maxLine, ' ')}:${column.padEnd(maxColumn, ' ')}`;
 }
 
@@ -36,6 +33,17 @@ function printLevel(issue) {
     error: 'red error'
   }[issue.severity]}`;
 }
+
+function print_error(error) {
+  if (error.code) {
+    const ctx = new chalk.Instance({level: 0});
+    const [type, code] = error.code.split('-');
+    const error_message = linthtml.messages[`${type}_ERRORS`][code];
+    return error_message(ctx, error.meta);
+  }
+  return error.message;
+}
+
 
 /**
  *  Output a report
@@ -51,7 +59,7 @@ function lintHTMLreporter(report) {
 
   report.issues.forEach(function(issue) {
     const msg = linthtml.messages.renderIssue(issue);
-    const positionTxt = printPosition(issue, maxLine, maxColumn);
+    const positionTxt = print_position(issue, maxLine, maxColumn);
     const level = printLevel(issue);
     issues.push({
       positions: chalk`{gray ${positionTxt}}`,
@@ -95,7 +103,7 @@ function transform (transform, flush) {
  */
 
 /**
- * @param {(Strint|GulpLintHTMLOptions)} [options] - Rules to convert
+ * @param {(String|GulpLintHTMLOptions)} [options] - Rules to convert
  * @returns {Object} converted options 
  */
 function convertOptions(options = {}) {
@@ -116,42 +124,8 @@ function convertOptions(options = {}) {
  * @returns {stream} gulp file stream
  */
 function gulpLintHTML(options) {
-
-  const explorer = cosmiconfigSync('linthtml', { stopDir: process.cwd(), packageProp: 'linthtmlConfig'});
-
   options = convertOptions(options);
   return transform((file, enc, cb) => {
-    let config = null;
-    if (options.configFile) {
-      const configPath = path.join(process.cwd(), options.configFile);
-      let isConfigDirectory = false;
-      try {
-        isConfigDirectory = fs.lstatSync(configPath).isDirectory();
-        if (isConfigDirectory) {
-          config = cosmiconfigSync('linthtml', { stopDir: configPath, packageProp: 'linthtmlConfig' }).search(configPath);
-        } else {
-          config = explorer.load(configPath);
-        }
-        if (config === null) {
-          throw new Error();
-        }
-      } catch (error) {
-        if (isConfigDirectory) {
-          return cb(new PluginError(PLUGIN_NAME, `gulp-linthtml cannot read config file in directory '${configPath}'`));
-        } else {
-          return cb(new PluginError(PLUGIN_NAME, `gulp-linthtml cannot read config file '${configPath}'`));
-        }
-      }
-    }
-
-    if (config === undefined || config === null) {
-      config = explorer.search();
-    }
-    
-    if (config) {
-      options.rules = config.config? config.config : config;
-    }
-
     if (file.isNull()) {
       return cb(null, file);
     }
@@ -159,7 +133,20 @@ function gulpLintHTML(options) {
     if (file.isStream()) {
       return cb(new PluginError(PLUGIN_NAME, 'gulp-linthtml doesn\'t support vinyl files with Stream contents.'));
     }
-    getLintReport(file, options, cb);
+    let linter = null;
+    try {
+      if (options.configFile) {
+        linter = linthtml.from_config_path(options.configFile)
+      } else if (options.rules) {
+        linter = linthtml.fromConfig(options);
+      } else {
+        linter = linthtml.create_linters_for_files([path.relative(process.cwd(), file.path)]);
+        linter = linter[0] ? linter[0].linter : null;
+      }
+    } catch (error) {
+      return cb(new PluginError(PLUGIN_NAME, `gulp-linthtml - ${print_error(error)}`));
+    }
+    return getLintReport(file, linter, /*options */ cb);
   });
 }
 
@@ -168,11 +155,10 @@ function gulpLintHTML(options) {
  * @param {*} file 
  * @param {*} cb 
  */
-function getLintReport(file, options, cb) {
+function getLintReport(file, linter, /*options,*/ cb) {
   try {
-    let p = linthtml(file.contents.toString(), options.rules);
+    let p = linter.lint(file.contents.toString());
     p.catch(e => cb(new PluginError(PLUGIN_NAME, e)));
-
     p.then(reports => file.linthtml = reports)
       .then(() => cb(null, file));
   } catch (error) {
@@ -244,7 +230,7 @@ gulpLintHTML.failOnError = () => {
         name: 'LintHTMLError',
         fileName: file.path,
         message: linthtml.messages.renderIssue(error),
-        lineNumber: error.line
+        lineNumber: error.position.start.line
       }));
     }
     return done(null, file);
