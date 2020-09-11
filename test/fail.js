@@ -54,8 +54,7 @@ describe('gulp-linthtml failOnError', () => {
         const report = file.linthtml[0];
 
         expect(report).to.have.property('rule');
-        expect(report).to.have.property('line');
-        expect(report).to.have.property('column');
+        expect(report).to.have.property('position');
         //   .and.have.property('ruleId', 'strict');
 
         done();

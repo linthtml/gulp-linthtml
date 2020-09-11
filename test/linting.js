@@ -56,8 +56,7 @@ describe('gulp-linthtml plugin', () => {
         const report = file.linthtml[0];
 
         expect(report).to.have.property('rule');
-        expect(report).to.have.property('line');
-        expect(report).to.have.property('column');
+        expect(report).to.have.property('position');
         //   .and.have.property('ruleId', 'strict');
 
         done();
@@ -85,8 +84,7 @@ describe('gulp-linthtml plugin', () => {
         const report = file.linthtml[0];
 
         expect(report).to.have.property('rule');
-        expect(report).to.have.property('line');
-        expect(report).to.have.property('column');
+        expect(report).to.have.property('position');
         //   .and.have.property('ruleId', 'strict');
 
         done();
@@ -114,8 +112,7 @@ describe('gulp-linthtml plugin', () => {
         const report = file.linthtml[0];
 
         expect(report).to.have.property('rule');
-        expect(report).to.have.property('line');
-        expect(report).to.have.property('column');
+        expect(report).to.have.property('position');
         //   .and.have.property('ruleId', 'strict');
 
         done();
@@ -145,8 +142,7 @@ describe('gulp-linthtml plugin', () => {
         const report = file.linthtml[0];
 
         expect(report).to.have.property('rule');
-        expect(report).to.have.property('line');
-        expect(report).to.have.property('column');
+        expect(report).to.have.property('position');
         //   .and.have.property('ruleId', 'strict');
 
         done();
@@ -189,7 +185,7 @@ describe('gulp-linthtml plugin', () => {
     linthtml('./test/fixtures/config.js')
       .on('error', err => {
         expect(err.plugin).to.equal('gulp-linthtml');
-        expect(err.message).to.equal(`gulp-linthtml cannot read config file '${path.resolve(__dirname, 'fixtures/config.js')}'`);
+        expect(err.message).to.equal(`gulp-linthtml - Error: Cannot find the config file ${path.resolve(__dirname, 'fixtures/config.js')}`);
         done();
       })
       .end(new File({
@@ -202,7 +198,7 @@ describe('gulp-linthtml plugin', () => {
     linthtml('./test/fixtures/invalid_config.json')
       .on('error', err => {
         expect(err.plugin).to.equal('gulp-linthtml');
-        expect(err.message).to.equal('Configuration for rule "html-req-lang" is invalid: Expected boolean got string');
+        expect(err.message).to.equal('Configuration for rule "html-req-lang" is invalid: Expected boolean got string.');
         done();
       })
       .end(new File({
