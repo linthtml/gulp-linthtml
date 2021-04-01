@@ -1,15 +1,15 @@
-const { Transform } = require('stream');
+const { Transform } = require("stream");
 // const relative = require('path').relative;
-const linthtml = require('@linthtml/linthtml');
-const PluginError = require('plugin-error');
-const fancy = require('fancy-log');
-const chalk = require('chalk');
-const Table = require('table-layout');
-const path = require('path');
-const PLUGIN_NAME = 'gulp-linthtml';
+const linthtml = require("@linthtml/linthtml");
+const PluginError = require("plugin-error");
+const fancy = require("fancy-log");
+const chalk = require("chalk");
+const Table = require("table-layout");
+const path = require("path");
+const PLUGIN_NAME = "gulp-linthtml";
 
 /**
- * @typedef {Object} Issue 
+ * @typedef {Object} Issue
  * @property {Number} line
  * @property {Number} column
  * @property {String} code
@@ -17,38 +17,37 @@ const PLUGIN_NAME = 'gulp-linthtml';
  */
 /**
  * @typedef {Object} Report
- * @property {String} fileName - File path of the analysed file 
+ * @property {String} fileName - File path of the analysed file
  * @property {Issue[]} issues - The issues found during fil analysis
  */
 
 function print_position({ position: { start } }, maxLine, maxColumn) {
   const line = start.line.toString();
   const column = start.column.toString();
-  return `${line.padStart(maxLine, ' ')}:${column.padEnd(maxColumn, ' ')}`;
+  return `${line.padStart(maxLine, " ")}:${column.padEnd(maxColumn, " ")}`;
 }
 
 function printLevel(issue) {
   return `${{
-    warning: 'yellow warning',
-    error: 'red error'
+    warning: "yellow warning",
+    error: "red error"
   }[issue.severity]}`;
 }
 
 function print_error(error) {
   if (error.code) {
-    const ctx = new chalk.Instance({level: 0});
-    const [type, code] = error.code.split('-');
+    const ctx = new chalk.Instance({ level: 0 });
+    const [type, code] = error.code.split("-");
     const error_message = linthtml.messages[`${type}_ERRORS`][code];
     return error_message(ctx, error.meta);
   }
   return error.message;
 }
 
-
 /**
  *  Output a report
- * 
- * @param {Report} report 
+ *
+ * @param {Report} report
  */
 function lintHTMLreporter(report) {
   let output = chalk`\n{underline ${report.fileName}}`;
@@ -81,8 +80,8 @@ function lintHTMLreporter(report) {
  * @param {Function} [flush] - An async function that is called before closing the stream
  * @returns {stream} A transform stream
  */
-function transform (transform, flush) {
-  if (typeof flush === 'function') {
+function transform(transform, flush) {
+  if (typeof flush === "function") {
     return new Transform({
       objectMode: true,
       transform,
@@ -104,10 +103,10 @@ function transform (transform, flush) {
 
 /**
  * @param {(String|GulpLintHTMLOptions)} [options] - Rules to convert
- * @returns {Object} converted options 
+ * @returns {Object} converted options
  */
 function convertOptions(options = {}) {
-  if (typeof options === 'string') {
+  if (typeof options === "string") {
     // basic config path overload: gulpLintHTML('path/to/config.json')
     options = {
       configFile: options
@@ -117,10 +116,10 @@ function convertOptions(options = {}) {
 }
 
 /**
- * 
- * @param {(Strint|GulpLintHTMLOptions)} [options] - Configure rules for running LintHTML 
+ *
+ * @param {(Strint|GulpLintHTMLOptions)} [options] - Configure rules for running LintHTML
  * @param {Function} [reporter] - A custom reporter to format LintHTML errors
- * 
+ *
  * @returns {stream} gulp file stream
  */
 function gulpLintHTML(options) {
@@ -131,7 +130,7 @@ function gulpLintHTML(options) {
     }
 
     if (file.isStream()) {
-      return cb(new PluginError(PLUGIN_NAME, 'gulp-linthtml doesn\'t support vinyl files with Stream contents.'));
+      return cb(new PluginError(PLUGIN_NAME, "gulp-linthtml doesn't support vinyl files with Stream contents."));
     }
     let linter = null;
     try {
@@ -146,21 +145,22 @@ function gulpLintHTML(options) {
     } catch (error) {
       return cb(new PluginError(PLUGIN_NAME, `gulp-linthtml - ${print_error(error)}`));
     }
-    return getLintReport(file, linter, /*options */ cb);
+    return getLintReport(file, linter, /* options */ cb);
   });
 }
 
 /**
- * 
- * @param {*} file 
- * @param {*} cb 
+ *
+ * @param {*} file
+ * @param {*} cb
  */
-function getLintReport(file, linter, /*options,*/ cb) {
+function getLintReport(file, linter, /* options, */ cb) {
   try {
-    let p = linter.lint(file.contents.toString());
+    const p = linter.lint(file.contents.toString());
     p.catch(e => cb(new PluginError(PLUGIN_NAME, e)));
-    p.then(reports => file.linthtml = reports)
-      .then(() => cb(null, file));
+    p.then(reports => {
+      file.linthtml = reports;
+    }).then(() => cb(null, file));
   } catch (error) {
     return cb(new PluginError(PLUGIN_NAME, error.message));
   }
@@ -172,8 +172,7 @@ function getLintReport(file, linter, /*options,*/ cb) {
  * @param {(String|Function)} [formatter=stylish] - The name or function for a LintHTML result formatter
  * @returns {stream} gulp file stream
  */
-gulpLintHTML.format = (/*formatter*/) => {
-
+gulpLintHTML.format = (/* formatter */) => {
   const results = [];
   results.errorsCount = 0;
   results.warningsCount = 0;
@@ -187,29 +186,28 @@ gulpLintHTML.format = (/*formatter*/) => {
       // results.push(file.linthtml);
       // // collect total error/warning count
 
-      const errorsCount = file.linthtml.reduce((count, issue) => issue.severity === 'error' ? count + 1 : count, 0);
-      const warningsCount = file.linthtml.reduce((count, issue) => issue.severity === 'warning' ? count + 1 : count, 0);
+      const errorsCount = file.linthtml.reduce((count, issue) => issue.severity === "error" ? count + 1 : count, 0);
+      const warningsCount = file.linthtml.reduce((count, issue) => issue.severity === "warning" ? count + 1 : count, 0);
       results.errorsCount += errorsCount;
       results.warningsCount += warningsCount;
     }
     done(null, file);
-
   }, done => {
     const { errorsCount, warningsCount } = results;
     const problemsCount = errorsCount + warningsCount;
-    let output = '\n';
+    let output = "\n";
     output = results.reduce((out, result) => {
-      return out += lintHTMLreporter(result);
+      return out + lintHTMLreporter(result);
     }, output);
-    output += '\n';
+    output += "\n";
 
     if (results.errorCount !== 0) {
-      output += chalk`  {red ✖ ${problemsCount} ${problemsCount > 1 ? 'problems' : 'problem'} (${errorsCount} ${errorsCount > 1 ? 'errors' : 'error'}, ${warningsCount} ${warningsCount > 1 ? 'warnings' : 'warning'})}`;
-      output += '\n';
+      output += chalk`  {red ✖ ${problemsCount} ${problemsCount > 1 ? "problems" : "problem"} (${errorsCount} ${errorsCount > 1 ? "errors" : "error"}, ${warningsCount} ${warningsCount > 1 ? "warnings" : "warning"})}`;
+      output += "\n";
       fancy(output);
     } else if (results.warningCount !== 0) {
-      output += chalk`  {yellow ✖ ${problemsCount} ${problemsCount > 1 ? 'problems' : 'problem'} (0 error, ${warningsCount} ${warningsCount > 1 ? 'warnings' : 'warning'})}`;
-      output += '\n';
+      output += chalk`  {yellow ✖ ${problemsCount} ${problemsCount > 1 ? "problems" : "problem"} (0 error, ${warningsCount} ${warningsCount > 1 ? "warnings" : "warning"})}`;
+      output += "\n";
       fancy(output);
     }
     return done();
@@ -223,11 +221,11 @@ gulpLintHTML.format = (/*formatter*/) => {
  */
 gulpLintHTML.failOnError = () => {
   return transform((file, enc, done) => {
-    const errors = file.linthtml.filter(_ => _.severity === 'error');
+    const errors = file.linthtml.filter(_ => _.severity === "error");
     if (errors.length > 0) {
       const error = errors[0];
       return done(new PluginError(PLUGIN_NAME, {
-        name: 'LintHTMLError',
+        name: "LintHTMLError",
         fileName: file.path,
         message: linthtml.messages.renderIssue(error),
         lineNumber: error.position.start.line
@@ -236,6 +234,5 @@ gulpLintHTML.failOnError = () => {
     return done(null, file);
   });
 };
-
 
 module.exports = gulpLintHTML;

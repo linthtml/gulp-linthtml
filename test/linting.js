@@ -1,13 +1,14 @@
-/* global describe, it*/
-'use strict';
+/* global describe, it */
+/* eslint-disable no-unused-expressions */
+"use strict";
 
-const path = require('path');
-const linthtml = require('..');
-const File = require('vinyl');
-const stringToStream = require('from2-string');
-const expect = require('chai').expect;
+const path = require("path");
+const linthtml = require("..");
+const File = require("vinyl");
+const stringToStream = require("from2-string");
+const expect = require("chai").expect;
 
-require('mocha');
+require("mocha");
 
 const content = `
 <!DOCTYPE html>
@@ -37,97 +38,95 @@ const invalid_content = `
 </html>
 `;
 
-
-describe('gulp-linthtml plugin', () => {
-  it('should support sharable config', done => {
-    linthtml('./test/fixtures/config.json')
-      .on('error', done)
-      .on('data', file => {
+describe("gulp-linthtml plugin", () => {
+  it("should support sharable config", done => {
+    linthtml("./test/fixtures/config.json")
+      .on("error", done)
+      .on("data", file => {
         expect(file).to.exist;
         expect(file.contents).to.exist;
         expect(file.linthtml).to.exist;
         expect(file.linthtml)
           .to.be.instanceOf(Array)
           .and.have.lengthOf(1);
-        
+
         // expect(file.linthtml).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
         // expect(file.linthtml[0]).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
-        
+
         const report = file.linthtml[0];
 
-        expect(report).to.have.property('rule');
-        expect(report).to.have.property('position');
+        expect(report).to.have.property("rule");
+        expect(report).to.have.property("position");
         //   .and.have.property('ruleId', 'strict');
 
         done();
       })
       .end(new File({
-        path: 'test/fixtures/test.html',
+        path: "test/fixtures/test.html",
         contents: Buffer.from(content)
       }));
   });
 
-  it('should support sharable config', done => {
-    linthtml('./test/fixtures/config.json')
-      .on('error', done)
-      .on('data', file => {
+  it("should support sharable config", done => {
+    linthtml("./test/fixtures/config.json")
+      .on("error", done)
+      .on("data", file => {
         expect(file).to.exist;
         expect(file.contents).to.exist;
         expect(file.linthtml).to.exist;
         expect(file.linthtml)
           .to.be.instanceOf(Array)
           .and.have.lengthOf(1);
-        
+
         // expect(file.linthtml).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
         // expect(file.linthtml[0]).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
-        
+
         const report = file.linthtml[0];
 
-        expect(report).to.have.property('rule');
-        expect(report).to.have.property('position');
+        expect(report).to.have.property("rule");
+        expect(report).to.have.property("position");
         //   .and.have.property('ruleId', 'strict');
 
         done();
       })
       .end(new File({
-        path: 'test/fixtures/test.html',
+        path: "test/fixtures/test.html",
         contents: Buffer.from(content)
       }));
   });
 
-  it('should support new config format', done => {
-    linthtml('./test/fixtures/new_config_format.json')
-      .on('error', done)
-      .on('data', file => {
+  it("should support new config format", done => {
+    linthtml("./test/fixtures/new_config_format.json")
+      .on("error", done)
+      .on("data", file => {
         expect(file).to.exist;
         expect(file.contents).to.exist;
         expect(file.linthtml).to.exist;
         expect(file.linthtml)
           .to.be.instanceOf(Array)
           .and.have.lengthOf(1);
-        
+
         // expect(file.linthtml).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
         // expect(file.linthtml[0]).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
-        
+
         const report = file.linthtml[0];
 
-        expect(report).to.have.property('rule');
-        expect(report).to.have.property('position');
+        expect(report).to.have.property("rule");
+        expect(report).to.have.property("position");
         //   .and.have.property('ruleId', 'strict');
 
         done();
       })
       .end(new File({
-        path: 'test/fixtures/test.html',
+        path: "test/fixtures/test.html",
         contents: Buffer.from(content)
       }));
   });
 
-  it('should produce expected message via buffer', done => {
-
-    linthtml({rules: { 'html-req-lang': true }})
-      .on('error', done)
-      .on('data', file => {
+  it("should produce expected message via buffer", done => {
+    linthtml({ rules: { "html-req-lang": true } })
+      .on("error", done)
+      .on("data", file => {
         expect(file).to.exist;
         expect(file.contents).to.exist;
         expect(file.linthtml).to.exist;
@@ -135,87 +134,87 @@ describe('gulp-linthtml plugin', () => {
         expect(file.linthtml)
           .to.be.instanceOf(Array)
           .and.have.lengthOf(1);
-        
+
         // expect(file.linthtml).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
         // expect(file.linthtml[0]).to.have.property('filePath', path.resolve('test/fixtures/test.html'));
-        
+
         const report = file.linthtml[0];
 
-        expect(report).to.have.property('rule');
-        expect(report).to.have.property('position');
+        expect(report).to.have.property("rule");
+        expect(report).to.have.property("position");
         //   .and.have.property('ruleId', 'strict');
 
         done();
       })
       .end(new File({
-        path: 'test/fixtures/test.html',
+        path: "test/fixtures/test.html",
         contents: Buffer.from(content)
       }));
   });
 
-  it('should ignore files with null content', done => {
-    linthtml({rules: { 'html-req-lang': true }})
-      .on('error', done)
-      .on('data', file => {
+  it("should ignore files with null content", done => {
+    linthtml({ rules: { "html-req-lang": true } })
+      .on("error", done)
+      .on("data", file => {
         expect(file).to.exist;
         expect(file.contents).to.not.exist;
         expect(file.linthtml).to.not.exist;
         done();
       })
       .end(new File({
-        path: 'test/fixtures',
+        path: "test/fixtures",
         isDirectory: true
       }));
   });
 
-  it('should emit an error when it takes a steam content', done => {
+  it("should emit an error when it takes a steam content", done => {
     linthtml()
-      .on('error', err => {
-        expect(err.plugin).to.equal('gulp-linthtml');
-        expect(err.message).to.equal('gulp-linthtml doesn\'t support vinyl files with Stream contents.');
+      .on("error", err => {
+        expect(err.plugin).to.equal("gulp-linthtml");
+        expect(err.message).to.equal("gulp-linthtml doesn't support vinyl files with Stream contents.");
         done();
       })
       .end(new File({
-        path: 'test/fixtures/text.html',
-        contents: stringToStream('')
+        path: "test/fixtures/text.html",
+        contents: stringToStream("")
       }));
   });
 
-  it('should emit an error when the config file specified does not exist', (done) => {
-    linthtml('./test/fixtures/config.js')
-      .on('error', err => {
-        expect(err.plugin).to.equal('gulp-linthtml');
-        expect(err.message).to.equal(`gulp-linthtml - Error: Cannot find the config file ${path.resolve(__dirname, 'fixtures/config.js')}`);
+  it("should emit an error when the config file specified does not exist", (done) => {
+    linthtml("./test/fixtures/config.js")
+      .on("error", err => {
+        expect(err.plugin).to.equal("gulp-linthtml");
+        expect(err.message).to.equal(`gulp-linthtml - Error: Cannot find the config file ${path.resolve(__dirname, "fixtures/config.js")}`);
         done();
       })
       .end(new File({
-        path: 'test/fixtures/text.html',
+        path: "test/fixtures/text.html",
         contents: Buffer.from(content)
       }));
   });
 
-  it('should emit an error when the config file specified is not valid', (done) => {
-    linthtml('./test/fixtures/invalid_config.json')
-      .on('error', err => {
-        expect(err.plugin).to.equal('gulp-linthtml');
-        expect(err.message).to.equal('Configuration for rule "html-req-lang" is invalid: Expected boolean got string.');
+  it("should emit an error when the config file specified is not valid", (done) => {
+    linthtml("./test/fixtures/invalid_config.json")
+      .on("error", err => {
+        expect(err.plugin).to.equal("gulp-linthtml");
+        expect(err.message).to.equal("Configuration for rule \"html-req-lang\" is invalid: Expected boolean got string.");
         done();
       })
       .end(new File({
-        path: 'test/fixtures/text.html',
+        path: "test/fixtures/text.html",
         contents: Buffer.from(content)
       }));
   });
 
-  it('should report linter errors', (done) => {
-    linthtml('./test/fixtures/config.json')
-      .on('error', err => {
-        expect(err.plugin).to.equal('gulp-linthtml');
-        expect(err.message).to.equal('Cannot parse inline configuration.');
+  it("should report linter errors", (done) => {
+    linthtml("./test/fixtures/config.json")
+      .on("error", err => {
+        expect(err.plugin).to.equal("gulp-linthtml");
+        expect(err.message).to.equal("Cannot parse inline configuration.");
         done();
       })
       .end(new File({
-        path: 'test/fixtures/text.html',
+        path: "test/fixtures/text.html",
         contents: Buffer.from(invalid_content)
       }));
   });
