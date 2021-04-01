@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0
+
+* [FEAT] Upgrade to @linthtml/linthtml@0.7.x
+
 ## 0.6.0
 
 * [FEAT] Upgrade to @linthtml/linthtml@0.6.x

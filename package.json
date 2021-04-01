@@ -1,6 +1,6 @@
 {
   "name": "@linthtml/gulp-linthtml",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "A gulp plugin for processing files with LintHTML",
   "main": "index.js",
   "directories": {
