@@ -17,7 +17,7 @@ describe('gulp-linthtml failOnError', () => {
       .on('error', function(err) {
         this.removeListener('finish', endWithoutError);
         expect(err).to.have.property('message');
-        expect(err.message).to.equal('HTML element should specify the language of the page');
+        expect(err.message).to.equal("<HTML> tag should specify the language of the page using the \"lang\" attribute");
         expect(err).to.have.property('lineNumber');
         expect(err.lineNumber).to.equal(1);
 
