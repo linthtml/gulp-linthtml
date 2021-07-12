@@ -24,7 +24,7 @@
   "author": "Benjamin JEGARD <kamikillerto@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@linthtml/linthtml": "0.7.x",
+    "@linthtml/linthtml": "0.8.x",
     "chalk": "^4.1.0",
     "fancy-log": "^1.3.3",
     "plugin-error": "^1.0.1",
